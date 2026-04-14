@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subsurface EM Detection Simulator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="title-bar">Subsurface Object Detection in Layered Media using EM Wave Propagation</div>
+
+<div class="main-grid">
+
+  <div class="panel-controls" id="controls-panel">
+
+    <div class="preset-row">
+      <label>SCENARIO:</label>
+      <select id="cb-presets">
+        <option value="custom">Custom Override</option>
+        <option value="road" selected>Road Infrastructure</option>
+        <option value="utility">Utility Detection</option>
+        <option value="landmine">Landmine Sweeper</option>
+      </select>
+    </div>
+
+    <div class="group-box">
+      <span class="group-box-title">Transceiver Settings</span>
+      <div class="form-row">
+        <label>Arch Type:</label>
+        <select id="cb-radar-type">
+          <option>Ground Penetrating Impulse</option>
+          <option>FMCW Core</option>
+          <option>UWB Synthetic Aperture</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Center Freq (Hz):</label>
+        <input type="text" id="le-frequency" value="2e9">
+      </div>
+      <div class="form-row">
+        <label>Bandwidth (Hz):</label>
+        <input type="text" id="le-bandwidth" value="5e8">
+      </div>
+      <div class="form-row">
+        <label>Pulse Width (s):</label>
+        <input type="text" id="le-pulse-width" value="1e-9">
+      </div>
+    </div>
+
+    <div class="group-box">
+      <span class="group-box-title">Subsurface Map (Strata)</span>
+      <div id="layers-container"></div>
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        <button class="btn btn-sm" onclick="addLayer('New Stratum','0.2','4','1','0.01')">+ Add Strata</button>
+        <button class="btn btn-sm" onclick="removeLastLayer()">- Drop Strata</button>
+      </div>
+    </div>
+
+    <div class="group-box">
+      <span class="group-box-title">Anomalous Target Config</span>
+      <div class="form-row">
+        <label>Target Type:</label>
+        <select id="cb-obj-type" onchange="onTargetTypeChanged()">
+          <option>Metal (Iron/Steel)</option>
+          <option>Plastic (PVC)</option>
+          <option>Void (Air gap)</option>
+          <option>Water</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Host Strata:</label>
+        <select id="cb-obj-layer"></select>
+      </div>
+      <div class="form-row">
+        <label>Radius (m):</label>
+        <input type="text" id="le-obj-radius" value="0.03">
+      </div>
+      <div class="form-row">
+        <label>Abs Depth (m):</label>
+        <input type="text" id="le-obj-depth" value="0.05">
+      </div>
+      <div class="form-row">
+        <label>Target σ (S/m):</label>
+        <input type="text" id="le-obj-sig" value="0.0">
+      </div>
+      <div class="form-row">
+        <label>Target εr:</label>
+        <input type="text" id="le-obj-eps" value="1.0">
+      </div>
+      <div class="form-row">
+        <label>Target μr:</label>
+        <input type="text" id="le-obj-mu" value="1.0">
+      </div>
+    </div>
+
+    <div class="action-section">
+      <button class="btn btn-primary" onclick="runSimulation()">▶ INITIATE RADAR SCAN</button>
+      <button class="btn btn-warning" onclick="exportTelemetry()">⬇ EXPORT TELEMETRY</button>
+    </div>
+  </div>
+
+  <div class="panel-plots">
+
+    <div class="chart-box chart-box-ascan">
+      <div class="chart-box-title">A-SCAN RADAR TRACE</div>
+      <canvas id="ascan-canvas"></canvas>
+    </div>
+
+    <div class="chart-box chart-box-bscan">
+      <div class="chart-box-title">SUBSURFACE RADAR PROFILE (B-SCAN)</div>
+      <canvas id="bscan-canvas"></canvas>
+    </div>
+
+    <div class="chart-box chart-box-cscan">
+      <div class="chart-box-title">C-SCAN DETECTION MAP</div>
+      <canvas id="cscan-canvas"></canvas>
+    </div>
+
+  </div>
+
+  <div class="panel-env">
+    <div class="env-title">GEOPHYSICAL CROSS-SECTION</div>
+    <canvas id="env-canvas"></canvas>
+  </div>
+
+  <div class="panel-analytics">
+    <div class="metric-card">
+      <div class="metric-title">[ANOMALY_DEPTH]</div>
+      <div class="metric-value" id="m-depth">-- m</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">[REFLECT_TIME]</div>
+      <div class="metric-value" id="m-time">-- ns</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">[SNR_ESTIMATE]</div>
+      <div class="metric-value" id="m-snr">-- dB</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">[MEDIA_VELOCITY]</div>
+      <div class="metric-value" id="m-vel">-- m/s</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">[SIGNAL_AMP]</div>
+      <div class="metric-value" id="m-amp">--</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
